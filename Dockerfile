@@ -1,25 +1,33 @@
-# Stage 1: Build the app with Node.js
-FROM node:22-alpine AS builder
+# Use Node.js Alpine image
+FROM node:22-alpine
+
+# Set working directory
 WORKDIR /app
 
-# Copy package and webpack config
-COPY package.json yarn.lock webpack.config.js ./
+# Copy package files
+COPY package*.json ./
 
 # Install dependencies
-RUN yarn install
+RUN npm ci --only=production
 
-# Copy source code and build
-COPY src ./src
-RUN npm run build
+# Copy application files
+COPY server.js ./
+COPY public/ ./public/
 
-# Stage 2: Serve with Nginx
-FROM nginx:alpine
-# Remove the default nginx content (optional)
-RUN rm -rf /usr/share/nginx/html/*
+# Create non-root user for security
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nodejs -u 1001
 
-# Copy built assets from builder
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Change ownership of the app directory
+RUN chown -R nodejs:nodejs /app
+USER nodejs
 
-# Expose port and launch
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+
+# Start the application
+CMD ["node", "server.js"]

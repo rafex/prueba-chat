@@ -12,8 +12,8 @@ on:
     branches:
       - main
     paths:
-      - 'charts/juego-aviones/**'
-      - 'juego-aviones/**'
+      - 'charts/prueba-chat/**'
+      - 'prueba-chat/**'
       - '.github/workflows/ci-cd.yml'
 
 
@@ -34,7 +34,7 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v4
 
-      - name: Deploy juego-aviones chart
+      - name: Deploy prueba-chat chart
         run: |
-          helm upgrade --install juego-aviones ./charts/juego-aviones \
+          helm upgrade --install prueba-chat ./charts/prueba-chat \
             --namespace ${{ env.K3S_NAMESPACE }}
