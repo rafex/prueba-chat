@@ -1,0 +1,66 @@
+# charts/prueba-chat/values.yaml
+
+# {{ change 1 }} Definir cuántas réplicas queremos
+replicaCount: 1
+
+resources:
+  requests:
+    cpu: "250m"       # pide 0.25 vCPU (bajo consumo)
+    memory: "256Mi"   # pide 256 MiB RAM
+  limits:
+    cpu: "750m"       # máximo 0.75 vCPU
+    memory: "512Mi"   # máximo 512 MiB RAM
+
+# Añade justo aquí:
+autoscaling:
+  enabled: true
+  # Opcionales, sólo por si acaso tuvieras que habilitar en el futuro:
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 80
+  #targetMemoryUtilizationPercentage: 80 # Si quieres escalar por memoria
+
+image:
+  repository: ghcr.io/rafex/poc-game-001   # apunta a tu imagen en GHCR
+  tag: v0.1.3                                # la etiqueta que subiste
+  pullPolicy: Always
+
+# Añade este bloque para que Kubernetes use el Secret al hacer pull
+imagePullSecrets:
+  - name: ghcr-pull-secret-mvp
+
+# ----------------------------------------------------------------
+# 1. Configuración del servicio
+# ----------------------------------------------------------------
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80   # nginx escucha en 80
+
+# ----------------------------------------------------------------
+# 2. Configuración del Ingress
+# ----------------------------------------------------------------
+ingress:
+  enabled: true
+  #ingressClassName: haproxy
+  className: haproxy # {{ change 3 }} Cambia el nombre del host a nuevo.
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /  # Key oficial para rewrites
+    ingress.kubernetes.io/ssl-redirect: "false"
+    ingress.kubernetes.io/backend-protocol: "http"
+
+  # {{ change 3 }} Host actualizado
+  hosts:
+    - host: airplane.v1.rafex.cloud  # Dominio manejado por HAProxy
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: "prueba-chat"  # Nombre del Service en Kubernetes
+              port:
+                number: 80  # Puerto HTTP (no HTTPS)
+
+serviceAccount:
+  create: false
+  automount: false
