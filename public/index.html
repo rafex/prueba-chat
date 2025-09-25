@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat WebSocket</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="chat-container">
+        <header class="chat-header">
+            <h1>💬 Chat WebSocket</h1>
+            <div class="user-info">
+                <span id="connectionStatus" class="status disconnected">Desconectado</span>
+                <span id="userCount" class="user-count">0 usuarios</span>
+            </div>
+        </header>
+        
+        <div class="username-section">
+            <input type="text" id="usernameInput" placeholder="Ingresa tu nombre de usuario" maxlength="20">
+            <button id="setUsernameBtn">Cambiar nombre</button>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="message system">
+                <span class="timestamp">[00:00:00]</span>
+                <span class="content">Conectando al chat...</span>
+            </div>
+        </div>
+        
+        <div class="message-input-section">
+            <input type="text" id="messageInput" placeholder="Escribe tu mensaje aquí..." maxlength="500" disabled>
+            <button id="sendBtn" disabled>Enviar</button>
+        </div>
+        
+        <div class="users-list">
+            <h3>Usuarios conectados:</h3>
+            <ul id="usersList"></ul>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
